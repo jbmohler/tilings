@@ -1,0 +1,7 @@
+pillow
+
+# consider aggdraw
+
+# dev only
+black
+flake8
