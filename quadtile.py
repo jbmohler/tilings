@@ -2,11 +2,11 @@ from PIL import Image, ImageColor, ImageDraw
 import transforms
 
 
-class Quad:
-    BASE_LABELS = "ABCD"
+class Polygon:
+    # must define BASE_LABELS in derived classes
 
     def __init__(self, vertices):
-        assert len(vertices) == 4
+        assert len(vertices) == len(self.BASE_LABELS)
 
         self._vertices = {k: v for k, v in zip(self.BASE_LABELS, vertices)}
 
@@ -63,18 +63,25 @@ class Quad:
         vxs = [self._vertices[ll] for ll in self.BASE_LABELS]
         draw.polygon(vxs, fill=fill, outline=outline)
 
+class Quad(Polygon):
+    BASE_LABELS = "ABCD"
+
+class Triangle(Polygon):
+    BASE_LABELS = "ABC"
+
 
 if __name__ == "__main__":
     q = Quad([(400, 415), (400, 433), (422, 433), (428, 395)])
+    #q = Triangle([(400, 415), (400, 433), (422, 433)])
 
     im = Image.new("RGB", (1000, 1000), (255, 255, 255))
     draw = ImageDraw.Draw(im)
     q.render(draw, ImageColor.getrgb("blue"), ImageColor.getrgb("black"))
 
-    for edge in Quad.enum_edges():
+    for edge in q.enum_edges():
         gen2 = q.spin_reflect_across_edge(edge)
         gen2.render( draw, ImageColor.getrgb("magenta"), ImageColor.getrgb("black"))
-        for edge1 in Quad.enum_edges():
+        for edge1 in q.enum_edges():
             if edge1 != edge:
                 gen3 = gen2.spin_reflect_across_edge(edge1)
                 gen3.render( draw, ImageColor.getrgb("green"), ImageColor.getrgb("black"))
